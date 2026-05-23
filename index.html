@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triadic Archetypal Identity Mapping — Universal Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a96e;
+    --gold-light: #e8d4a0;
+    --gold-dim: #6b5c3a;
+    --bg: #08080e;
+    --bg-surface: #0e0e18;
+    --bg-card: #12121e;
+    --bg-hover: #1a1a28;
+    --text: #e8e4d9;
+    --text-dim: #9a9488;
+    --text-muted: #4a4540;
+    --border: #2a2535;
+    --border-hover: #3a3550;
+    --green: #6a9e6a;
+    --red: #a85c5c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .starfield {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .star {
+    position: absolute; background: #fff; border-radius: 50%;
+    animation: twinkle var(--dur, 4s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s); opacity: 0;
+  }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--brightness,0.6);} }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 780px; margin: 0 auto; padding: 0 2rem 4rem;
+  }
+
+  /* HEADER */
+  .site-header { text-align: center; padding: 4rem 0 2.5rem; }
+  .header-sigil { font-size: 28px; color: var(--gold); display: block; margin-bottom: 1.25rem; opacity: 0.7; letter-spacing: 0.3em; }
+  .site-title { font-family: 'Cinzel', serif; font-size: clamp(16px,3vw,24px); font-weight: 400; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; line-height: 1.4; margin-bottom: 0.5rem; }
+  .site-subtitle { font-style: italic; font-size: 16px; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .edition-badge { display: inline-block; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.3em; color: var(--text-muted); text-transform: uppercase; border: 0.5px solid var(--border); padding: 4px 12px; border-radius: 20px; margin-bottom: 1.5rem; }
+  .divider { width: 120px; height: 1px; background: linear-gradient(90deg,transparent,var(--gold),transparent); margin: 0 auto 1.75rem; }
+  .header-desc { font-size: 15px; line-height: 1.8; color: var(--text-muted); max-width: 540px; margin: 0 auto; }
+
+  /* CARDS */
+  .card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+  .card-title { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid var(--border); }
+
+  /* PROVIDER SELECTOR */
+  .provider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+  @media(max-width:520px){ .provider-grid { grid-template-columns: 1fr 1fr; } }
+
+  .provider-option {
+    border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 0.9rem 1rem; cursor: pointer;
+    transition: all 0.2s; background: var(--bg-surface); text-align: center;
+    user-select: none;
+  }
+  .provider-option:hover { border-color: var(--border-hover); }
+  .provider-option.selected { border-color: var(--gold); background: #1a1710; }
+  .provider-option.local-opt.selected { border-color: #6a9e6a; background: #101a10; }
+  #prov-huggingface.selected { border-color: #ff9d00; background: #1a1200; }
+
+  .provider-name { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.12em; color: var(--gold); display: block; margin-bottom: 3px; }
+  .provider-option.local-opt .provider-name { color: #6a9e6a; }
+  .provider-desc { font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+  /* PROVIDER CONFIG */
+  .provider-config { display: none; }
+  .provider-config.visible { display: block; }
+
+  .field-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; display: block; margin-bottom: 5px; }
+  .field-sublabel { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 8px; display: block; }
+
+  .input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 0.5rem; }
+
+  input[type="password"], input[type="text"], select {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--gold); }
+  input::placeholder { color: var(--text-muted); }
+
+  .activate-btn {
+    padding: 10px 18px; background: transparent;
+    border: 0.5px solid var(--gold); color: var(--gold);
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; border-radius: 6px; transition: all 0.2s; white-space: nowrap;
+  }
+  .activate-btn:hover { background: var(--bg-hover); }
+  .activate-btn.green-btn { border-color: #6a9e6a; color: #6a9e6a; }
+  .activate-btn.green-btn:hover { background: #101a10; }
+
+  .status-line { font-size: 13px; font-style: italic; margin-top: 6px; }
+  .status-line.ready { color: var(--green); }
+  .status-line.missing { color: var(--text-muted); }
+  .status-line.local { color: #6a9e6a; }
+  .status-line.error { color: var(--red); }
+
+  .local-note { font-size: 12px; color: var(--text-muted); font-style: italic; line-height: 1.6; margin-top: 0.5rem; padding: 0.75rem 1rem; background: #101a10; border: 0.5px solid #1a3a1a; border-radius: 6px; }
+
+  /* MODEL INPUT */
+  .model-row { margin-top: 1rem; }
+
+  /* SELECT WRAPPER */
+  .select-wrap { position: relative; }
+  .select-wrap::after { content:'▾'; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--gold); pointer-events:none; font-size:13px; }
+  select { appearance: none; padding-right: 32px; }
+  select option { background: #12121e; }
+
+  /* SIGN FORM */
+  .field-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+  @media(max-width:560px){ .field-group { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+
+  .birthtime-group { display: flex; gap: 12px; margin-bottom: 1.25rem; }
+  .birthtime-option { flex:1; border:0.5px solid var(--border); border-radius:8px; padding:0.9rem 1rem; cursor:pointer; transition:all 0.2s; background:var(--bg-surface); text-align:center; user-select:none; }
+  .birthtime-option:hover { border-color:var(--border-hover); }
+  .birthtime-option.selected { border-color:var(--gold); background:#1a1710; }
+  .birthtime-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; color:var(--gold); display:block; margin-bottom:4px; }
+  .birthtime-formula { font-size:11px; color:var(--text-muted); font-style:italic; }
+
+  .stack-preview { display:flex; align-items:center; justify-content:center; gap:10px; padding:0.9rem 1.5rem; background:var(--bg-surface); border:0.5px solid var(--border); border-radius:8px; margin-bottom:1.25rem; flex-wrap:wrap; min-height:60px; }
+  .stack-node { text-align:center; }
+  .stack-node-role { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.15em; color:var(--text-muted); display:block; margin-bottom:2px; }
+  .stack-node-sign { font-size:15px; color:var(--text); display:block; }
+  .stack-node-fn { font-size:11px; font-style:italic; color:var(--gold-dim); display:block; margin-top:1px; }
+  .stack-arrow { color:var(--border-hover); font-size:18px; }
+
+  .generate-btn { width:100%; padding:15px; background:transparent; border:0.5px solid var(--gold); color:var(--gold); font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.3em; text-transform:uppercase; cursor:pointer; border-radius:8px; transition:all 0.25s; }
+  .generate-btn:hover { background:#1a1710; color:var(--gold-light); }
+  .generate-btn:disabled { opacity:0.3; cursor:not-allowed; }
+
+  /* LOADING */
+  .loading-section { display:none; text-align:center; padding:3rem 0; }
+  .loading-section.visible { display:block; }
+  .loading-orb { width:44px; height:44px; border:1px solid var(--gold); border-radius:50%; margin:0 auto 1.25rem; animation:orbit 3s linear infinite; position:relative; }
+  .loading-orb::after { content:''; position:absolute; top:-3px; left:50%; width:6px; height:6px; background:var(--gold); border-radius:50%; transform:translateX(-50%); }
+  @keyframes orbit { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  .loading-text { font-style:italic; color:var(--text-dim); font-size:16px; animation:fadePulse 2.5s ease-in-out infinite; }
+  @keyframes fadePulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+
+  /* ERROR */
+  .error-msg { display:none; background:rgba(168,92,92,0.08); border:0.5px solid rgba(168,92,92,0.3); border-radius:8px; padding:1rem 1.25rem; color:var(--red); font-size:14px; font-style:italic; margin-bottom:1rem; text-align:center; }
+  .error-msg.visible { display:block; }
+
+  /* OUTPUT */
+  .output-section { display:none; }
+  .output-section.visible { display:block; }
+
+  .output-header { text-align:center; padding:2.5rem 0 2rem; border-bottom:0.5px solid var(--border); margin-bottom:2rem; }
+  .output-triad { font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.2em; color:var(--gold); margin-bottom:0.4rem; }
+  .output-formula { font-size:13px; color:var(--text-muted); font-style:italic; margin-bottom:1.25rem; }
+  .divider-sm { width:60px; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:1.25rem auto; }
+  .core-dynamic { font-size:clamp(18px,3.5vw,26px); font-style:italic; font-weight:300; color:var(--text); line-height:1.5; max-width:560px; margin:0 auto; }
+
+  .overview-card { background:var(--bg-card); border:0.5px solid var(--border); border-radius:10px; padding:1.4rem 1.5rem; margin-bottom:1.25rem; }
+  .overview-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.25em; color:var(--gold); text-transform:uppercase; margin-bottom:0.65rem; }
+  .overview-text { font-size:17px; line-height:1.8; color:#c8c4b8; }
+
+  .houses-label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.25em; color:var(--gold); text-transform:uppercase; margin:1.75rem 0 1.25rem; }
+
+  .house-card { background:var(--bg-card); border:0.5px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:1rem; transition:border-color 0.2s; }
+  .house-card:hover { border-color:var(--border-hover); }
+  .house-card-header { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.4rem; border-bottom:0.5px solid var(--border); cursor:pointer; user-select:none; }
+  .house-number { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; color:var(--gold); min-width:28px; }
+  .house-name { font-family:'Cinzel',serif; font-size:12px; font-weight:400; letter-spacing:0.1em; color:var(--text); flex:1; }
+  .house-domain { font-size:11px; font-style:italic; color:var(--text-muted); }
+  .house-toggle { color:var(--text-muted); font-size:13px; transition:transform 0.2s; }
+  .house-card.expanded .house-toggle { transform:rotate(180deg); }
+  .house-functions { display:flex; gap:8px; padding:0.5rem 1.4rem; background:var(--bg-surface); border-bottom:0.5px solid var(--border); flex-wrap:wrap; }
+  .fn-pill { font-size:11px; font-style:italic; color:var(--gold-dim); background:rgba(201,169,110,0.06); border:0.5px solid rgba(201,169,110,0.15); padding:2px 10px; border-radius:20px; }
+  .fn-arrow { color:var(--border); font-size:11px; align-self:center; }
+  .house-body { display:none; padding:1.1rem 1.4rem; }
+  .house-card.expanded .house-body { display:block; }
+  .house-synthesis { font-size:16px; line-height:1.8; color:#c8c4b8; }
+
+  .output-actions { display:flex; gap:12px; margin-top:2rem; flex-wrap:wrap; }
+  .action-btn { flex:1; min-width:130px; padding:11px 14px; background:transparent; border:0.5px solid var(--border); color:var(--text-dim); font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; border-radius:6px; transition:all 0.2s; text-align:center; }
+  .action-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  .site-footer { text-align:center; padding:2rem 0; border-top:0.5px solid var(--border); margin-top:3rem; }
+  .footer-text { font-size:12px; font-style:italic; color:var(--text-muted); line-height:1.8; }
+
+  @media print {
+    .starfield,.site-header,.card,.loading-section,.output-actions,.site-footer { display:none !important; }
+    .output-section { display:block !important; }
+    body { background:white; color:black; }
+    .house-body { display:block !important; }
+    .house-toggle { display:none; }
+    .core-dynamic,.house-synthesis,.overview-text { color:#222; }
+    .output-triad,.house-number,.house-name,.overview-label { color:#8b6914; }
+    .fn-pill { color:#8b6914; border-color:#8b6914; background:#fdf8ee; }
+  }
+</style>
+</head>
+<body>
+
+<div class="starfield" id="starfield"></div>
+
+<div class="container">
+
+  <header class="site-header">
+    <span class="header-sigil">☽ ✦ ☉</span>
+    <h1 class="site-title">Triadic Archetypal Identity Mapping</h1>
+    <p class="site-subtitle">Sequential Mythic Personality Geometry</p>
+    <span class="edition-badge">Universal Edition</span>
+    <div class="divider"></div>
+    <p class="header-desc">
+      A symbolic-operational framework treating the astrological triad as a sequential
+      architecture of encounter, assimilation, and becoming. Compatible with any AI provider.
+    </p>
+  </header>
+
+  <!-- PROVIDER SELECTION -->
+  <div class="card">
+    <div class="card-title">Choose Your AI Provider</div>
+
+    <div class="provider-grid">
+      <div class="provider-option" id="prov-anthropic" onclick="selectProvider('anthropic')">
+        <span class="provider-name">Anthropic</span>
+        <span class="provider-desc">Claude models</span>
+      </div>
+      <div class="provider-option" id="prov-openai" onclick="selectProvider('openai')">
+        <span class="provider-name">OpenAI</span>
+        <span class="provider-desc">GPT models</span>
+      </div>
+      <div class="provider-option" id="prov-gemini" onclick="selectProvider('gemini')">
+        <span class="provider-name">Google Gemini</span>
+        <span class="provider-desc">Gemini models</span>
+      </div>
+      <div class="provider-option" id="prov-mistral" onclick="selectProvider('mistral')">
+        <span class="provider-name">Mistral</span>
+        <span class="provider-desc">Mistral models</span>
+      </div>
+      <div class="provider-option local-opt" id="prov-ollama" onclick="selectProvider('ollama')">
+        <span class="provider-name">Ollama</span>
+        <span class="provider-desc">Local — no key needed</span>
+      </div>
+      <div class="provider-option local-opt" id="prov-lmstudio" onclick="selectProvider('lmstudio')">
+        <span class="provider-name">LM Studio</span>
+        <span class="provider-desc">Local — no key needed</span>
+      </div>
+      <div class="provider-option" id="prov-huggingface" onclick="selectProvider('huggingface')" style="grid-column:1/-1;">
+        <span class="provider-name" style="color:#ff9d00;">Hugging Face</span>
+        <span class="provider-desc">Free tier available — hundreds of open source models</span>
+      </div>
+    </div>
+
+    <!-- ANTHROPIC -->
+    <div class="provider-config" id="cfg-anthropic">
+      <label class="field-label">Anthropic API Key</label>
+      <span class="field-sublabel">Get yours at platform.anthropic.com</span>
+      <div class="input-row">
+        <input type="password" id="key-anthropic" placeholder="sk-ant-..." />
+        <button class="activate-btn" onclick="activateKey('anthropic')">Activate</button>
+      </div>
+      <div class="model-row">
+        <label class="field-label">Model</label>
+        <div class="select-wrap">
+          <select id="model-anthropic">
+            <option value="claude-sonnet-4-20250514">Claude Sonnet 4 (Recommended)</option>
+            <option value="claude-opus-4-20250514">Claude Opus 4</option>
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (Fastest)</option>
+          </select>
+        </div>
+      </div>
+      <div class="status-line missing" id="status-anthropic">No key entered.</div>
+    </div>
+
+    <!-- OPENAI -->
+    <div class="provider-config" id="cfg-openai">
+      <label class="field-label">OpenAI API Key</label>
+      <span class="field-sublabel">Get yours at platform.openai.com</span>
+      <div class="input-row">
+        <input type="password" id="key-openai" placeholder="sk-..." />
+        <button class="activate-btn" onclick="activateKey('openai')">Activate</button>
+      </div>
+      <div class="model-row">
+        <label class="field-label">Model</label>
+        <div class="select-wrap">
+          <select id="model-openai">
+            <option value="gpt-4o">GPT-4o (Recommended)</option>
+            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (Fastest)</option>
+          </select>
+        </div>
+      </div>
+      <div class="status-line missing" id="status-openai">No key entered.</div>
+    </div>
+
+    <!-- GEMINI -->
+    <div class="provider-config" id="cfg-gemini">
+      <label class="field-label">Google Gemini API Key</label>
+      <span class="field-sublabel">Get yours at aistudio.google.com</span>
+      <div class="input-row">
+        <input type="password" id="key-gemini" placeholder="AIza..." />
+        <button class="activate-btn" onclick="activateKey('gemini')">Activate</button>
+      </div>
+      <div class="model-row">
+        <label class="field-label">Model</label>
+        <div class="select-wrap">
+          <select id="model-gemini">
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Recommended)</option>
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fastest)</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          </select>
+        </div>
+      </div>
+      <div class="status-line missing" id="status-gemini">No key entered.</div>
+    </div>
+
+    <!-- MISTRAL -->
+    <div class="provider-config" id="cfg-mistral">
+      <label class="field-label">Mistral API Key</label>
+      <span class="field-sublabel">Get yours at console.mistral.ai</span>
+      <div class="input-row">
+        <input type="password" id="key-mistral" placeholder="Your Mistral key..." />
+        <button class="activate-btn" onclick="activateKey('mistral')">Activate</button>
+      </div>
+      <div class="model-row">
+        <label class="field-label">Model</label>
+        <div class="select-wrap">
+          <select id="model-mistral">
+            <option value="mistral-large-latest">Mistral Large (Recommended)</option>
+            <option value="mistral-medium-latest">Mistral Medium</option>
+            <option value="mistral-small-latest">Mistral Small (Fastest)</option>
+          </select>
+        </div>
+      </div>
+      <div class="status-line missing" id="status-mistral">No key entered.</div>
+    </div>
+
+    <!-- OLLAMA -->
+    <div class="provider-config" id="cfg-ollama">
+      <div class="local-note">
+        Ollama runs AI locally on your computer — no API key required.<br>
+        Install at <strong>ollama.com</strong>, then run a model like
+        <code style="color:#6a9e6a">ollama pull llama3</code> in your terminal.
+        Ollama must be running before generating a synthesis.
+      </div>
+      <div class="model-row" style="margin-top:1rem;">
+        <label class="field-label">Model Name</label>
+        <input type="text" id="model-ollama" placeholder="llama3" value="llama3" />
+      </div>
+      <div class="input-row" style="margin-top:0.75rem;">
+        <input type="text" id="url-ollama" placeholder="http://localhost:11434" value="http://localhost:11434" style="font-size:13px;" />
+        <button class="activate-btn green-btn" onclick="activateLocal('ollama')">Test</button>
+      </div>
+      <div class="status-line missing" id="status-ollama">Not tested yet.</div>
+    </div>
+
+    <!-- LM STUDIO -->
+    <div class="provider-config" id="cfg-lmstudio">
+      <div class="local-note">
+        LM Studio runs AI locally on your computer — no API key required.<br>
+        Download at <strong>lmstudio.ai</strong>, load any model, and start the
+        local server from the Developer tab. The server must be running before generating.
+      </div>
+      <div class="model-row" style="margin-top:1rem;">
+        <label class="field-label">Model Identifier</label>
+        <input type="text" id="model-lmstudio" placeholder="local-model" value="local-model" />
+      </div>
+      <div class="input-row" style="margin-top:0.75rem;">
+        <input type="text" id="url-lmstudio" placeholder="http://localhost:1234/v1" value="http://localhost:1234/v1" style="font-size:13px;" />
+        <button class="activate-btn green-btn" onclick="activateLocal('lmstudio')">Test</button>
+      </div>
+      <div class="status-line missing" id="status-lmstudio">Not tested yet.</div>
+    </div>
+
+    <!-- HUGGING FACE -->
+    <div class="provider-config" id="cfg-huggingface">
+      <label class="field-label" style="color:#ff9d00;">Hugging Face API Token</label>
+      <span class="field-sublabel">Free account at huggingface.co — go to Settings → Access Tokens → New Token</span>
+      <div class="input-row">
+        <input type="password" id="key-huggingface" placeholder="hf_..." />
+        <button class="activate-btn" onclick="activateKey('huggingface')" style="border-color:#ff9d00;color:#ff9d00;">Activate</button>
+      </div>
+      <div class="model-row">
+        <label class="field-label" style="color:#ff9d00;">Model</label>
+        <div class="select-wrap">
+          <select id="model-huggingface">
+            <option value="mistralai/Mixtral-8x7B-Instruct-v0.1">Mixtral 8x7B Instruct (Recommended)</option>
+            <option value="mistralai/Mistral-7B-Instruct-v0.3">Mistral 7B Instruct</option>
+            <option value="meta-llama/Meta-Llama-3-8B-Instruct">Llama 3 8B Instruct</option>
+            <option value="meta-llama/Meta-Llama-3-70B-Instruct">Llama 3 70B Instruct</option>
+            <option value="HuggingFaceH4/zephyr-7b-beta">Zephyr 7B</option>
+          </select>
+        </div>
+      </div>
+      <div class="local-note" style="margin-top:0.75rem; border-color:#3a2a0a; background:#1a1200;">
+        Hugging Face free tier has rate limits — if you hit a limit, wait a moment and try again.
+        Some larger models may require a Pro account. Mixtral 8x7B works well on the free tier.
+      </div>
+      <div class="status-line missing" id="status-huggingface">No token entered.</div>
+    </div>
+
+  </div>
+
+  <!-- SIGN FORM -->
+  <div class="card">
+    <div class="card-title">Your Symbolic Triad</div>
+
+    <div class="field-group">
+      <div class="field">
+        <span class="field-label">Rising Sign</span>
+        <span class="field-sublabel">Interface Layer</span>
+        <div class="select-wrap">
+          <select id="rising" onchange="updatePreview();checkReady()">
+            <option value="">Select</option>
+            <option>Aries</option><option>Taurus</option><option>Gemini</option>
+            <option>Cancer</option><option>Leo</option><option>Virgo</option>
+            <option>Libra</option><option>Scorpio</option><option>Sagittarius</option>
+            <option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Sun Sign</span>
+        <span class="field-sublabel">Directive Core</span>
+        <div class="select-wrap">
+          <select id="sun" onchange="updatePreview();checkReady()">
+            <option value="">Select</option>
+            <option>Aries</option><option>Taurus</option><option>Gemini</option>
+            <option>Cancer</option><option>Leo</option><option>Virgo</option>
+            <option>Libra</option><option>Scorpio</option><option>Sagittarius</option>
+            <option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Moon Sign</span>
+        <span class="field-sublabel">Emotional Assimilation</span>
+        <div class="select-wrap">
+          <select id="moon" onchange="updatePreview();checkReady()">
+            <option value="">Select</option>
+            <option>Aries</option><option>Taurus</option><option>Gemini</option>
+            <option>Cancer</option><option>Leo</option><option>Virgo</option>
+            <option>Libra</option><option>Scorpio</option><option>Sagittarius</option>
+            <option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-label" style="margin-bottom:0.5rem;">Birth Time</div>
+    <div class="birthtime-group">
+      <div class="birthtime-option" id="dayOpt" onclick="selectTime('day')">
+        <span class="birthtime-title">Daytime Birth</span>
+        <span class="birthtime-formula">Interface → Directive → Emotional</span>
+      </div>
+      <div class="birthtime-option" id="nightOpt" onclick="selectTime('night')">
+        <span class="birthtime-title">Nighttime Birth</span>
+        <span class="birthtime-formula">Interface → Emotional → Directive</span>
+      </div>
+    </div>
+
+    <div class="stack-preview">
+      <div class="stack-node">
+        <span class="stack-node-role">Interface</span>
+        <span class="stack-node-sign" id="sn1">—</span>
+        <span class="stack-node-fn" id="sf1"></span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node">
+        <span class="stack-node-role" id="sr2">—</span>
+        <span class="stack-node-sign" id="sn2">—</span>
+        <span class="stack-node-fn" id="sf2"></span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node">
+        <span class="stack-node-role" id="sr3">—</span>
+        <span class="stack-node-sign" id="sn3">—</span>
+        <span class="stack-node-fn" id="sf3"></span>
+      </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <button class="generate-btn" id="generateBtn" onclick="generate()" disabled>
+      Generate Full Triadic Synthesis
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-section" id="loadingSection">
+    <div class="loading-orb"></div>
+    <div class="loading-text" id="loadingText">Assembling the symbolic architecture...</div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-section" id="outputSection">
+    <div class="output-header">
+      <div class="output-triad" id="outTriad"></div>
+      <div class="output-formula" id="outFormula"></div>
+      <div class="divider-sm"></div>
+      <div class="core-dynamic" id="outCoreDynamic"></div>
+    </div>
+    <div id="overviewCards"></div>
+    <div class="divider"></div>
+    <div class="houses-label">The Twelve Houses</div>
+    <div id="housesGrid"></div>
+    <div class="output-actions">
+      <button class="action-btn" onclick="window.print()">Print / Save PDF</button>
+      <button class="action-btn" onclick="resetForm()">New Reading</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-text">
+      Triadic Archetypal Identity Mapping &mdash; Sequential Mythic Personality Geometry<br>
+      Universal Edition &mdash; Compatible with any AI provider<br>
+      A symbolic-operational system. Not traditional astrology.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────
+let activeProvider = null;
+let providerReady  = false;
+let birthTime      = null;
+
+const keys   = {};
+const models = {};
+const urls   = {};
+
+// ─── SYMBOLIC GRAMMAR ────────────────────────────────────────────────────
+const SIGN_FUNCTIONS = {
+  Aries:'Initiates', Taurus:'Stabilizes', Gemini:'Connects', Cancer:'Protects',
+  Leo:'Radiates', Virgo:'Refines', Libra:'Harmonizes',
+  Scorpio:'Transforms / Conceals', Sagittarius:'Expands / Explores',
+  Capricorn:'Structures', Aquarius:'Innovates / Disrupts', Pisces:'Dissolves / Absorbs'
+};
+
+const HOUSES = [
+  {n:'I',   name:'House of Self',                  domain:'Physical appearance, identity, and first impressions'},
+  {n:'II',  name:'House of Value',                 domain:'Material possessions, income, and personal values'},
+  {n:'III', name:'House of Communication',         domain:'Thought processes, immediate environment, and siblings'},
+  {n:'IV',  name:'House of Home & Roots',          domain:'Family, ancestry, domestic life, and emotional foundations'},
+  {n:'V',   name:'House of Pleasure & Creativity', domain:'Self-expression, romance, hobbies, and children'},
+  {n:'VI',  name:'House of Health & Service',      domain:'Daily routines, wellness habits, and acts of service'},
+  {n:'VII', name:'House of Partnerships',          domain:'Marriage, business collaborations, and one-on-one relating'},
+  {n:'VIII',name:'House of Transformation',        domain:'Deep intimacy, shared resources, death, and rebirth'},
+  {n:'IX',  name:'House of Philosophy & Expansion',domain:'Higher education, long travel, belief systems, and religion'},
+  {n:'X',   name:'House of Career & Public Image', domain:'Vocation, social status, reputation, and legacy'},
+  {n:'XI',  name:'House of Friendships',           domain:'Social networks, community, and long-term hopes'},
+  {n:'XII', name:'House of the Unconscious',       domain:'Hidden life, spirituality, dreams, and cycle closures'}
+];
+
+const LOADING_LINES = [
+  'Assembling the symbolic architecture...',
+  'Sequencing the archetypal functions...',
+  'Reading the triadic grammar...',
+  'Synthesizing the house overlays...',
+  'Resolving symbolic interactions...',
+  'Mapping the mythic identity...'
+];
+
+const SYSTEM_PROMPT = `You are the symbolic synthesis engine for the Triadic Archetypal Identity Mapping system.
+Signs are OPERATIONAL FUNCTIONS — symbolic verbs, not personality traits.
+SIGN FUNCTIONS: Aries=Initiates|Taurus=Stabilizes|Gemini=Connects|Cancer=Protects|Leo=Radiates|Virgo=Refines|Libra=Harmonizes|Scorpio=Transforms/Conceals|Sagittarius=Expands/Explores|Capricorn=Structures|Aquarius=Innovates/Disrupts|Pisces=Dissolves/Absorbs
+POSITIONAL ROLES: Interface Layer (Rising)=how reality is encountered; Emotional Assimilation (Moon)=how experience is metabolized; Directive Core (Sun)=how identity resolves through action.
+STACK: Night birth=Interface→Emotional→Directive. Day birth=Interface→Directive→Emotional.
+RULES: Signs modify each other sequentially. Order changes meaning. Preserve contradiction. Write mythically and precisely. Never use trait adjectives. Core Dynamic must be a first-person paradox derived purely from symbolic logic.
+Respond ONLY with valid JSON. No markdown. No explanation outside JSON.`;
+
+// ─── STARFIELD ────────────────────────────────────────────────────────────
+(function(){
+  const sf = document.getElementById('starfield');
+  for(let i=0;i<120;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random()*2+0.5;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${(Math.random()*5+3).toFixed(1)}s;--delay:${(Math.random()*6).toFixed(1)}s;--brightness:${(Math.random()*0.5+0.2).toFixed(2)};`;
+    sf.appendChild(s);
+  }
+})();
+
+// ─── PROVIDER SELECTION ───────────────────────────────────────────────────
+function selectProvider(p) {
+  activeProvider = p;
+  providerReady = false;
+  document.querySelectorAll('.provider-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('prov-'+p).classList.add('selected');
+  document.querySelectorAll('.provider-config').forEach(el => el.classList.remove('visible'));
+  document.getElementById('cfg-'+p).classList.add('visible');
+  checkReady();
+}
+
+function activateKey(p) {
+  const val = document.getElementById('key-'+p).value.trim();
+  if (!val) {
+    setStatus(p, 'Please enter your API key.', 'error'); return;
+  }
+  keys[p] = val;
+  models[p] = document.getElementById('model-'+p) ? document.getElementById('model-'+p).value : '';
+  sessionStorage.setItem('tai_key_'+p, val);
+  providerReady = true;
+  setStatus(p, '✦ Key active for this session', 'ready');
+  checkReady();
+}
+
+async function activateLocal(p) {
+  const url   = document.getElementById('url-'+p).value.trim();
+  const model = document.getElementById('model-'+p).value.trim();
+  urls[p]   = url;
+  models[p] = model;
+  setStatus(p, 'Testing connection...', 'missing');
+  try {
+    if (p === 'ollama') {
+      const r = await fetch(url + '/api/tags', {method:'GET'});
+      if (!r.ok) throw new Error('No response');
+    } else {
+      const r = await fetch(url + '/models', {method:'GET'});
+      if (!r.ok) throw new Error('No response');
+    }
+    providerReady = true;
+    setStatus(p, '✦ Local server connected', 'local');
+    checkReady();
+  } catch(e) {
+    providerReady = false;
+    setStatus(p, 'Could not reach local server. Is it running?', 'error');
+    checkReady();
+  }
+}
+
+function setStatus(p, msg, cls) {
+  const el = document.getElementById('status-'+p);
+  el.textContent = msg;
+  el.className = 'status-line ' + cls;
+}
+
+// ─── FORM LOGIC ───────────────────────────────────────────────────────────
+function selectTime(v) {
+  birthTime = v;
+  document.getElementById('dayOpt').classList.toggle('selected', v==='day');
+  document.getElementById('nightOpt').classList.toggle('selected', v==='night');
+  updatePreview(); checkReady();
+}
+
+function updatePreview() {
+  const rising = document.getElementById('rising').value;
+  const sun    = document.getElementById('sun').value;
+  const moon   = document.getElementById('moon').value;
+  const second = birthTime==='night' ? moon : sun;
+  const third  = birthTime==='night' ? sun  : moon;
+  document.getElementById('sn1').textContent = rising || '—';
+  document.getElementById('sf1').textContent = rising ? SIGN_FUNCTIONS[rising] : '';
+  document.getElementById('sr2').textContent = birthTime ? (birthTime==='night'?'Emotional':'Directive') : '—';
+  document.getElementById('sn2').textContent = second || '—';
+  document.getElementById('sf2').textContent = second ? SIGN_FUNCTIONS[second] : '';
+  document.getElementById('sr3').textContent = birthTime ? (birthTime==='night'?'Directive':'Emotional') : '—';
+  document.getElementById('sn3').textContent = third || '—';
+  document.getElementById('sf3').textContent = third ? SIGN_FUNCTIONS[third] : '';
+}
+
+function checkReady() {
+  const r = document.getElementById('rising').value;
+  const s = document.getElementById('sun').value;
+  const m = document.getElementById('moon').value;
+  document.getElementById('generateBtn').disabled =
+    !(r && s && m && birthTime && activeProvider && providerReady);
+}
+
+// ─── PROMPT BUILDER ───────────────────────────────────────────────────────
+function buildUserPrompt(rising, sun, moon) {
+  const second     = birthTime==='night' ? moon : sun;
+  const third      = birthTime==='night' ? sun  : moon;
+  const secondRole = birthTime==='night' ? 'Emotional Assimilation' : 'Directive Core';
+  const thirdRole  = birthTime==='night' ? 'Directive Core' : 'Emotional Assimilation';
+  const stackLabel = birthTime==='night' ? 'Lunar-Mediated (night birth)' : 'Solar-Mediated (day birth)';
+  const houseLines = HOUSES.map(h =>
+    `    "${h.n}": "3-4 sentences synthesizing all three sign-functions in the ${h.name}"`
+  ).join(',\n');
+  return `Generate a complete Triadic Archetypal Identity Mapping synthesis for:
+Rising Sign: ${rising} | Interface Layer | Function: ${SIGN_FUNCTIONS[rising]}
+${secondRole}: ${second} | Function: ${SIGN_FUNCTIONS[second]}
+${thirdRole}: ${third} | Function: ${SIGN_FUNCTIONS[third]}
+Stack: ${stackLabel}
+Return this exact JSON:
+{
+  "coreDynamic": "first-person paradoxical statement",
+  "sequentialFlow": "3-4 sentences on psychological movement through the three positions",
+  "symbolicInteraction": "3-4 sentences on how sign-functions modify each other",
+  "coreTension": "2-3 sentences on central internal contradiction or harmonic",
+  "mythicIdentity": "2-3 sentences naming the mythic archetypal role",
+  "houses": {
+${houseLines}
+  }
+}`;
+}
+
+// ─── API CALLS ────────────────────────────────────────────────────────────
+async function callAnthropic(rising, sun, moon) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': keys.anthropic,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model: models.anthropic || 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system: SYSTEM_PROMPT,
+      messages:[{role:'user', content:buildUserPrompt(rising,sun,moon)}]
+    })
+  });
+  if(!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||'API error'); }
+  const data = await res.json();
+  return JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
+}
+
+async function callOpenAI(rising, sun, moon) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+keys.openai},
+    body: JSON.stringify({
+      model: models.openai || 'gpt-4o',
+      max_tokens: 4000,
+      messages:[
+        {role:'system', content:SYSTEM_PROMPT},
+        {role:'user', content:buildUserPrompt(rising,sun,moon)}
+      ]
+    })
+  });
+  if(!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||'API error'); }
+  const data = await res.json();
+  return JSON.parse(data.choices[0].message.content.replace(/```json|```/g,'').trim());
+}
+
+async function callGemini(rising, sun, moon) {
+  const model = models.gemini || 'gemini-1.5-pro';
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keys.gemini}`,
+    {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        system_instruction:{parts:[{text:SYSTEM_PROMPT}]},
+        contents:[{parts:[{text:buildUserPrompt(rising,sun,moon)}]}],
+        generationConfig:{maxOutputTokens:4000}
+      })
+    }
+  );
+  if(!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||'API error'); }
+  const data = await res.json();
+  const raw = data.candidates[0].content.parts[0].text;
+  return JSON.parse(raw.replace(/```json|```/g,'').trim());
+}
+
+async function callMistral(rising, sun, moon) {
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+keys.mistral},
+    body: JSON.stringify({
+      model: models.mistral || 'mistral-large-latest',
+      max_tokens: 4000,
+      messages:[
+        {role:'system', content:SYSTEM_PROMPT},
+        {role:'user', content:buildUserPrompt(rising,sun,moon)}
+      ]
+    })
+  });
+  if(!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||'API error'); }
+  const data = await res.json();
+  return JSON.parse(data.choices[0].message.content.replace(/```json|```/g,'').trim());
+}
+
+async function callOllama(rising, sun, moon) {
+  const res = await fetch(urls.ollama + '/api/generate', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: models.ollama || 'llama3',
+      prompt: SYSTEM_PROMPT + '\n\n' + buildUserPrompt(rising,sun,moon),
+      stream: false
+    })
+  });
+  if(!res.ok) throw new Error('Ollama error — is the server running?');
+  const data = await res.json();
+  return JSON.parse(data.response.replace(/```json|```/g,'').trim());
+}
+
+async function callLMStudio(rising, sun, moon) {
+  const res = await fetch(urls.lmstudio + '/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer none'},
+    body: JSON.stringify({
+      model: models.lmstudio || 'local-model',
+      max_tokens: 4000,
+      messages:[
+        {role:'system', content:SYSTEM_PROMPT},
+        {role:'user', content:buildUserPrompt(rising,sun,moon)}
+      ]
+    })
+  });
+  if(!res.ok) throw new Error('LM Studio error — is the server running?');
+  const data = await res.json();
+  return JSON.parse(data.choices[0].message.content.replace(/```json|```/g,'').trim());
+}
+
+async function callHuggingFace(rising, sun, moon) {
+  const model = models.huggingface || 'mistralai/Mixtral-8x7B-Instruct-v0.1';
+  const prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\n${buildUserPrompt(rising,sun,moon)} [/INST]`;
+  const res = await fetch(
+    `https://api-inference.huggingface.co/models/${model}`,
+    {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + keys.huggingface
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 4000,
+          return_full_text: false,
+          temperature: 0.7
+        }
+      })
+    }
+  );
+  if(!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    const msg = e.error || `Hugging Face error ${res.status}`;
+    if(res.status===503) throw new Error('Model is loading — wait 20 seconds and try again.');
+    if(res.status===429) throw new Error('Rate limit reached — wait a moment and try again.');
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  // HF returns array of generated text
+  const raw = Array.isArray(data)
+    ? data[0]?.generated_text || ''
+    : data?.generated_text || JSON.stringify(data);
+  // Extract JSON from the response
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if(!jsonMatch) throw new Error('Could not parse response. Try a different model.');
+  return JSON.parse(jsonMatch[0]);
+}
+
+// ─── GENERATE ────────────────────────────────────────────────────────────
+let loadingInterval = null;
+
+async function generate() {
+  const rising = document.getElementById('rising').value;
+  const sun    = document.getElementById('sun').value;
+  const moon   = document.getElementById('moon').value;
+
+  document.getElementById('errorMsg').classList.remove('visible');
+  document.getElementById('outputSection').classList.remove('visible');
+  document.getElementById('loadingSection').classList.add('visible');
+  document.getElementById('generateBtn').disabled = true;
+
+  let li = 0;
+  document.getElementById('loadingText').textContent = LOADING_LINES[0];
+  loadingInterval = setInterval(()=>{
+    li=(li+1)%LOADING_LINES.length;
+    document.getElementById('loadingText').textContent = LOADING_LINES[li];
+  }, 2500);
+
+  try {
+    let result;
+    if      (activeProvider==='anthropic') result = await callAnthropic(rising,sun,moon);
+    else if (activeProvider==='openai')    result = await callOpenAI(rising,sun,moon);
+    else if (activeProvider==='gemini')    result = await callGemini(rising,sun,moon);
+    else if (activeProvider==='mistral')   result = await callMistral(rising,sun,moon);
+    else if (activeProvider==='ollama')       result = await callOllama(rising,sun,moon);
+    else if (activeProvider==='lmstudio')     result = await callLMStudio(rising,sun,moon);
+    else if (activeProvider==='huggingface')  result = await callHuggingFace(rising,sun,moon);
+
+    clearInterval(loadingInterval);
+    renderOutput(rising, sun, moon, result);
+
+  } catch(err) {
+    clearInterval(loadingInterval);
+    document.getElementById('loadingSection').classList.remove('visible');
+    document.getElementById('generateBtn').disabled = false;
+    const em = document.getElementById('errorMsg');
+    em.textContent = 'The symbolic engine encountered an interruption: ' + err.message;
+    em.classList.add('visible');
+  }
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function renderOutput(rising, sun, moon, result) {
+  const second     = birthTime==='night' ? moon : sun;
+  const third      = birthTime==='night' ? sun  : moon;
+  const secondRole = birthTime==='night' ? 'Emotional' : 'Directive';
+  const thirdRole  = birthTime==='night' ? 'Directive' : 'Emotional';
+  const stackType  = birthTime==='night' ? 'Lunar-Mediated Stack' : 'Solar-Mediated Stack';
+  const fn1 = SIGN_FUNCTIONS[rising];
+  const fn2 = SIGN_FUNCTIONS[second];
+  const fn3 = SIGN_FUNCTIONS[third];
+
+  document.getElementById('outTriad').textContent =
+    `${rising} Rising  ·  ${sun} Sun  ·  ${moon} Moon`;
+  document.getElementById('outFormula').textContent =
+    `${rising} (Interface) → ${second} (${secondRole}) → ${third} (${thirdRole})  ·  ${stackType}`;
+  document.getElementById('outCoreDynamic').textContent =
+    '\u201C' + result.coreDynamic + '\u201D';
+
+  const ov = document.getElementById('overviewCards');
+  ov.innerHTML = '';
+  [
+    ['Sequential Flow',      result.sequentialFlow],
+    ['Symbolic Interaction', result.symbolicInteraction],
+    ['Core Tension',         result.coreTension],
+    ['Mythic Identity',      result.mythicIdentity]
+  ].forEach(([label,text])=>{
+    ov.innerHTML += `<div class="overview-card">
+      <div class="overview-label">${label}</div>
+      <div class="overview-text">${text}</div>
+    </div>`;
+  });
+
+  const hg = document.getElementById('housesGrid');
+  hg.innerHTML = '';
+  HOUSES.forEach(h=>{
+    const text = (result.houses||{})[h.n] || '';
+    hg.innerHTML += `
+      <div class="house-card" id="hcard${h.n}">
+        <div class="house-card-header" onclick="toggleHouse('${h.n}')">
+          <span class="house-number">House ${h.n}</span>
+          <div style="flex:1">
+            <div class="house-name">${h.name}</div>
+            <div class="house-domain">${h.domain}</div>
+          </div>
+          <span class="house-toggle">▾</span>
+        </div>
+        <div class="house-functions">
+          <span class="fn-pill">${fn1}</span>
+          <span class="fn-arrow">→</span>
+          <span class="fn-pill">${fn2}</span>
+          <span class="fn-arrow">→</span>
+          <span class="fn-pill">${fn3}</span>
+        </div>
+        <div class="house-body">
+          <div class="house-synthesis">${text}</div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('loadingSection').classList.remove('visible');
+  document.getElementById('outputSection').classList.add('visible');
+  document.getElementById('outputSection').scrollIntoView({behavior:'smooth'});
+  document.getElementById('generateBtn').disabled = false;
+}
+
+function toggleHouse(n) {
+  document.getElementById('hcard'+n).classList.toggle('expanded');
+}
+
+function resetForm() {
+  document.getElementById('outputSection').classList.remove('visible');
+  document.getElementById('rising').value = '';
+  document.getElementById('sun').value = '';
+  document.getElementById('moon').value = '';
+  birthTime = null;
+  document.getElementById('dayOpt').classList.remove('selected');
+  document.getElementById('nightOpt').classList.remove('selected');
+  updatePreview(); checkReady();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Restore session keys
+['anthropic','openai','gemini','mistral','huggingface'].forEach(p=>{
+  const stored = sessionStorage.getItem('tai_key_'+p);
+  if(stored){ document.getElementById('key-'+p).value = stored; }
+});
+</script>
+</body>
+</html>
