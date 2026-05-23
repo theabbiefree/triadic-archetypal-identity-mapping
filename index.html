@@ -78,7 +78,6 @@
   .provider-option:hover { border-color: var(--border-hover); }
   .provider-option.selected { border-color: var(--gold); background: #1a1710; }
   .provider-option.local-opt.selected { border-color: #6a9e6a; background: #101a10; }
-  #prov-huggingface.selected { border-color: #ff9d00; background: #1a1200; }
 
   .provider-name { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.12em; color: var(--gold); display: block; margin-bottom: 3px; }
   .provider-option.local-opt .provider-name { color: #6a9e6a; }
@@ -268,10 +267,6 @@
         <span class="provider-name">LM Studio</span>
         <span class="provider-desc">Local — no key needed</span>
       </div>
-      <div class="provider-option" id="prov-huggingface" onclick="selectProvider('huggingface')" style="grid-column:1/-1;">
-        <span class="provider-name" style="color:#ff9d00;">Hugging Face</span>
-        <span class="provider-desc">Free tier available — hundreds of open source models</span>
-      </div>
     </div>
 
     <!-- ANTHROPIC -->
@@ -393,33 +388,6 @@
         <button class="activate-btn green-btn" onclick="activateLocal('lmstudio')">Test</button>
       </div>
       <div class="status-line missing" id="status-lmstudio">Not tested yet.</div>
-    </div>
-
-    <!-- HUGGING FACE -->
-    <div class="provider-config" id="cfg-huggingface">
-      <label class="field-label" style="color:#ff9d00;">Hugging Face API Token</label>
-      <span class="field-sublabel">Free account at huggingface.co — go to Settings → Access Tokens → New Token</span>
-      <div class="input-row">
-        <input type="password" id="key-huggingface" placeholder="hf_..." />
-        <button class="activate-btn" onclick="activateKey('huggingface')" style="border-color:#ff9d00;color:#ff9d00;">Activate</button>
-      </div>
-      <div class="model-row">
-        <label class="field-label" style="color:#ff9d00;">Model</label>
-        <div class="select-wrap">
-          <select id="model-huggingface">
-            <option value="mistralai/Mixtral-8x7B-Instruct-v0.1">Mixtral 8x7B Instruct (Recommended)</option>
-            <option value="mistralai/Mistral-7B-Instruct-v0.3">Mistral 7B Instruct</option>
-            <option value="meta-llama/Meta-Llama-3-8B-Instruct">Llama 3 8B Instruct</option>
-            <option value="meta-llama/Meta-Llama-3-70B-Instruct">Llama 3 70B Instruct</option>
-            <option value="HuggingFaceH4/zephyr-7b-beta">Zephyr 7B</option>
-          </select>
-        </div>
-      </div>
-      <div class="local-note" style="margin-top:0.75rem; border-color:#3a2a0a; background:#1a1200;">
-        Hugging Face free tier has rate limits — if you hit a limit, wait a moment and try again.
-        Some larger models may require a Pro account. Mixtral 8x7B works well on the free tier.
-      </div>
-      <div class="status-line missing" id="status-huggingface">No token entered.</div>
     </div>
 
   </div>
@@ -829,45 +797,6 @@ async function callLMStudio(rising, sun, moon) {
   return JSON.parse(data.choices[0].message.content.replace(/```json|```/g,'').trim());
 }
 
-async function callHuggingFace(rising, sun, moon) {
-  const model = models.huggingface || 'mistralai/Mixtral-8x7B-Instruct-v0.1';
-  const prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\n${buildUserPrompt(rising,sun,moon)} [/INST]`;
-  const res = await fetch(
-    `https://api-inference.huggingface.co/models/${model}`,
-    {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer ' + keys.huggingface
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 4000,
-          return_full_text: false,
-          temperature: 0.7
-        }
-      })
-    }
-  );
-  if(!res.ok) {
-    const e = await res.json().catch(()=>({}));
-    const msg = e.error || `Hugging Face error ${res.status}`;
-    if(res.status===503) throw new Error('Model is loading — wait 20 seconds and try again.');
-    if(res.status===429) throw new Error('Rate limit reached — wait a moment and try again.');
-    throw new Error(msg);
-  }
-  const data = await res.json();
-  // HF returns array of generated text
-  const raw = Array.isArray(data)
-    ? data[0]?.generated_text || ''
-    : data?.generated_text || JSON.stringify(data);
-  // Extract JSON from the response
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if(!jsonMatch) throw new Error('Could not parse response. Try a different model.');
-  return JSON.parse(jsonMatch[0]);
-}
-
 // ─── GENERATE ────────────────────────────────────────────────────────────
 let loadingInterval = null;
 
@@ -896,7 +825,6 @@ async function generate() {
     else if (activeProvider==='mistral')   result = await callMistral(rising,sun,moon);
     else if (activeProvider==='ollama')       result = await callOllama(rising,sun,moon);
     else if (activeProvider==='lmstudio')     result = await callLMStudio(rising,sun,moon);
-    else if (activeProvider==='huggingface')  result = await callHuggingFace(rising,sun,moon);
 
     clearInterval(loadingInterval);
     renderOutput(rising, sun, moon, result);
@@ -993,7 +921,7 @@ function resetForm() {
 }
 
 // Restore session keys
-['anthropic','openai','gemini','mistral','huggingface'].forEach(p=>{
+['anthropic','openai','gemini','mistral'].forEach(p=>{
   const stored = sessionStorage.getItem('tai_key_'+p);
   if(stored){ document.getElementById('key-'+p).value = stored; }
 });
