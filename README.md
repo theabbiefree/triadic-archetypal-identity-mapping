@@ -155,14 +155,13 @@ Compatible with any AI provider. Choose from:
 | OpenAI | Paid | GPT-4o and variants |
 | Google Gemini | Paid | Gemini Pro and Flash |
 | Mistral | Paid | Mistral Large and variants |
-| **Hugging Face** | **Free tier available** | Mixtral, Llama 3, and others |
 | Ollama | Free — local | Runs entirely on your machine |
 | LM Studio | Free — local | Runs entirely on your machine |
 
 For those who want to explore the system without cost,
-**Hugging Face** offers a free tier that works well with Mixtral 8x7B.
-Create a free account at [huggingface.co](https://huggingface.co),
-generate an access token under Settings → Access Tokens, and you're ready.
+**Ollama** and **LM Studio** run entirely on your own machine —
+no internet connection, no API key, no ongoing cost.
+Download Ollama at [ollama.com](https://ollama.com) and run any open source model locally.
 
 ### `tai_batch_generator.py`
 **TAI — Batch Generator**
